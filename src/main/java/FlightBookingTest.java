@@ -4,59 +4,96 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
 public class FlightBookingTest {
 
-    WebDriver driver = new ChromeDriver();
-
+    WebDriver driver;
 
     @Test
     public void testThatResultsAppearForAOneWayJourney() {
 
-        setDriverPath();
-        driver.get("https://www.cleartrip.com/");
-        waitFor(2000);
+        
+        
+        
         driver.findElement(By.id("OneWay")).click();
 
         driver.findElement(By.id("FromTag")).clear();
-        driver.findElement(By.id("FromTag")).sendKeys("Bangalore");
+        driver.findElement(By.id("FromTag")).sendKeys("Ban");
+        waitFor(3000);
+        List<WebElement> element=driver.findElements(By.tagName("li"));
+        for(WebElement suggestion:element) {
+        	System.out.println(suggestion.getText());
+        	if(suggestion.getText().equalsIgnoreCase("Bangalore, IN - Kempegowda International Airport (BLR)")) {
+        		
+        		suggestion.click();
+        	}
+        		
+        	}
 
-        //wait for the auto complete options to appear for the origin
+               
+        driver.findElement(By.id("ToTag")).clear();
+        driver.findElement(By.id("ToTag")).sendKeys("Del");
+        waitFor(3000);
+        List<WebElement> element2=driver.findElements(By.tagName("li"));
+        for(WebElement suggestion2:element2) {
+        	System.out.println(suggestion2.getText());
+        	if(suggestion2.getText().equalsIgnoreCase("New Delhi, IN - Indira Gandhi Airport (DEL)")) {
+        		
+        		suggestion2.click();
+        	}
+        		
+        	}
 
-        waitFor(2000);
-        List<WebElement> originOptions = driver.findElement(By.id("ui-id-1")).findElements(By.tagName("li"));
-        originOptions.get(0).click();
+        
 
-        driver.findElement(By.id("toTag")).clear();
-        driver.findElement(By.id("toTag")).sendKeys("Delhi");
+        
 
-        //wait for the auto complete options to appear for the destination
+       driver.findElement(By.id("DepartDate")).click();
+       List<WebElement> element1=driver.findElements(By.tagName("td"));
+       for(WebElement suggestion1:element1) {
+       	System.out.println(suggestion1.getText());
+       	if(suggestion1.getText().equalsIgnoreCase("31")) {
+       
+       		suggestion1.click();
+       		
 
-        waitFor(2000);
-        //select the first item from the destination auto complete list
-        List<WebElement> destinationOptions = driver.findElement(By.id("ui-id-2")).findElements(By.tagName("li"));
-        destinationOptions.get(0).click();
-
-        driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[1]/table/tbody/tr[3]/td[7]/a")).click();
+       }
+       }
 
         //all fields filled in. Now click on search
-        driver.findElement(By.id("SearchBtn")).click();
+      driver.findElement(By.id("SearchBtn")).click();
 
-        waitFor(5000);
         //verify that result appears for the provided journey search
-        Assert.assertTrue(isElementPresent(By.className("searchSummary")));
+       Assert.assertTrue(isElementPresent(By.className("searchSummary")));
 
-        //close the browser
-        driver.quit();
+        
 
     }
-
-
+    
+    @BeforeTest
+    public void openURL() {
+    	ChromeOptions options = new ChromeOptions();
+    	options.addArguments("--disable-notifications");
+    	System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
+    	driver = new ChromeDriver(options);
+        driver.get("https://www.cleartrip.com/");
+    }
+    
+    @AfterTest
+    public void quitBrowser() {
+    	
+    	driver.quit();
+    	
+    }
+    
     private void waitFor(int durationInMilliSeconds) {
         try {
             Thread.sleep(durationInMilliSeconds);
@@ -65,6 +102,9 @@ public class FlightBookingTest {
         }
     }
 
+
+
+  
 
     private boolean isElementPresent(By by) {
         try {
@@ -75,15 +115,6 @@ public class FlightBookingTest {
         }
     }
 
-    private void setDriverPath() {
-        if (PlatformUtil.isMac()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver");
-        }
-        if (PlatformUtil.isWindows()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        }
-        if (PlatformUtil.isLinux()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux");
-        }
-    }
+   
 }
+
